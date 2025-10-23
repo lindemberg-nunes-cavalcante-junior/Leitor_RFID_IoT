@@ -1,0 +1,6 @@
+Preto: GND (Ground) --> GND 
+Branco: RST --> Pino RST
+Cinza: 3.3V --> 3V
+
+Verde: SDA --> GPI04 (D2)
+Azul: SCK --> 
