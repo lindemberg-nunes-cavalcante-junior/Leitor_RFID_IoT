@@ -31,7 +31,6 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  // Show some details of the PICC (that is: the tag/card)
   if ( ! mfrc522.PICC_IsNewCardPresent()) {
     return; // Não encontrou, sai
   }
