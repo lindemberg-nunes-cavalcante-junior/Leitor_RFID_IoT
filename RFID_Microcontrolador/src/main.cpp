@@ -1,52 +1,74 @@
 #include <MFRC522.h>
+#include <ESP8266HTTPClient.h>
+#include <ESP8266WiFi.h>
 #include <SPI.h>
 #include <Arduino.h>
+
 
 #define SDA_pin D4
 #define RST_pin D2
 
+HTTPClient http;
+WiFiClient cliente;
+
+
 MFRC522 mfrc522(SDA_pin, RST_pin);
 
-// put function declarations here:
-//int myFunction(int, int);
+String data1;
+
 
 void setup() {
-  // put your setup code here, to run once:
-  //int result = myFunction(2, 3);
   Serial.begin(9600);
 
-  SPI.begin();
-
-  mfrc522.PCD_Init();
+  // Iniciar comunicação com o leitor RFID
+  // SPI.begin();
+  // mfrc522.PCD_Init();
   
-
-  //pinMode(SDA_pin, OUTPUT);
-
   Serial.println("Lendo cartões RFID");
+
+  WiFi.begin("NOME DA REDE WIFI","SENHA DA REDE");
+
+  Serial.println("connecting...");
+  while (WiFi.status() != WL_CONNECTED){
+    delay(500);
+    Serial.print(".");
+  }
 
 }
 
 
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
-  if ( ! mfrc522.PICC_IsNewCardPresent()) {
-    return; // Não encontrou, sai
-  }
-
-  if ( ! mfrc522.PICC_ReadCardSerial()) {
-    return; // Falha na leitura, sai
-  }
-
   
-  Serial.print(F(": Card UID:"));
-  for (byte i= 0; i < mfrc522.uid.size; i++){
-    Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0": " ");
-    Serial.print(mfrc522.uid.uidByte[i], HEX);
+  ///Serial.println(WiFi.localIP());
+
+  http.begin(cliente,"http://10.235.93.245:8080/teste");
+
+  if (http.GET() > 0){
+    data1 = http.getString();
+    Serial.println(data1);
   }
-  mfrc522.PICC_HaltA();
+
+  /*if (http.GET()){
+    http.GET();
+    data = http.getString();
+    Serial.println(data);
+  }*/
+
+  http.end();
+
+  delay(2000);
+
+  /*if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()){
+    Serial.print(F(": Card UID:"));
+    for (byte i= 0; i < mfrc522.uid.size; i++){
+      Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0": " ");
+      Serial.print(mfrc522.uid.uidByte[i], HEX);
+    }
+    mfrc522.PICC_HaltA();
+  }*/
 }
+
 
 
 
