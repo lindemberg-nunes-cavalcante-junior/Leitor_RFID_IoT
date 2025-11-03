@@ -26,7 +26,9 @@ MFRC522 mfrc522{driver};
 HTTPClient http;
 WiFiClient cliente;
 
-String api = "http://ip_api:porta/autenticar?";
+String api = "http://192.168.10.135:8080/autenticar";
+String data;
+String token;
 
 
 
@@ -42,12 +44,6 @@ void setup() {
   mfrc522.PCD_Init();
 
   MFRC522Debug::PCD_DumpVersionToSerial(mfrc522, Serial);
-    Serial.println(F("Scan PICC to see UID, SAK, type, and data blocks..."));
-  
-  /*mfrc522.PCD_Init();
-  Serial.println(mfrc522.PCD_PerformSelfTest() ? "ok": "ERROR!");
-  mfrc522.PCD_Init();
-  mfrc522.PCD_DumpVersionToSerial();*/
 
   Serial.println("Agora ligando o RFID...");
 
@@ -60,8 +56,10 @@ void setup() {
   }
 
   Serial.println(WiFi.localIP());
-  //http.begin(cliente, "http://192.168.10.135:8080/entrar"); //utilizar apenas na versão de envio json
-  
+
+  http.begin(cliente, api);
+
+  //http.begin(cliente, "http://192.168.10.135:8080/entrar"); //utilizar apenas na versão de envio json, caso for utilizar
 
 }
 
@@ -69,54 +67,27 @@ void setup() {
 
 void loop() {
 
-
   if ( !mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
-		return;
-	}
-
-  MFRC522Debug::PICC_DumpToSerial(mfrc522, Serial, &(mfrc522.uid));
-
-
-
-  //String data = String((char*)teste);
-
-  //int date = 1;
-  //String data = String(date);
-  //data = "Isso é uma string " + data;
-  //Serial.println(data);
-
-  //delay(1000);
-
-  //http.begin(cliente,"http://192.168.10.135:8080/");
-
-  /*if (http.GET() > 0){
-    data1 = http.getString();
-    Serial.println(data1);
-  }*/
-
-
-  /*if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()){
-    for (byte i = 0; i < mfrc522.uid.size;i++){
-      api += String(mfrc522.uid.uidByte[i]);
-    }
-
-    Serial.println(api);
-
-    mfrc522.PICC_HaltA();
-
-    //http.addHeader("Content-Type","aplication/json");
-
-
-    //data = "{data:123}";
-    //Serial.println(uid[0]);
-    //http.POST(data);
-
-    /*if (http.POST(data) == 0){
-      String response = http.getString();
-      Serial.println(response);
-    }*/
-
+    return;
   }
+
+  mfrc522.PICC_HaltA();
+
+  //Pegando UID
+	for (byte i = 0; i < mfrc522.uid.size;i++){
+    token += String(mfrc522.uid.uidByte[i]);
+  }
+
+  if (token != ""){
+    http.addHeader("Token",token);
+
+    if (http.GET()> 0){
+      data = http.getString();
+      Serial.println(data);
+    }
+  }
+  token = "";
+}
 
 
 
