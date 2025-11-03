@@ -8,7 +8,17 @@ def main():
         jsonify(response='Hellow World')
         )
 
-app.run('10.235.93.245',8080)
+@app.route('/entrar', methods=['POST'])
+def enter():
+
+    data = request.json
+    print(data)
+
+    return make_response(
+        'Sua resposta chegou'
+    ) 
+
+app.run('192.168.10.135',8080)
 
 
 
